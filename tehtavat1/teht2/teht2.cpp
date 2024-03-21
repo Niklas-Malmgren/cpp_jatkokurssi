@@ -1,6 +1,5 @@
 #include <thread>
 #include <mutex>
-#include <vector>
 #include <iostream>
 
 std::mutex mutex;
