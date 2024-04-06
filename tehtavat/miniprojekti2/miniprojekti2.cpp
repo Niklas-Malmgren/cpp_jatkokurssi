@@ -1,12 +1,9 @@
 #include <iostream>
-
+#include <thread>
 #include "TestClass.h"
 #include "Log_Ptr.h"
 
-std::shared_ptr<TestClass> foo(std::shared_ptr<TestClass> ptr)
-{
-    return ptr;
-}
+
 
 int main()
 {
@@ -19,7 +16,8 @@ int main()
     TestClass* testClass3 = new TestClass;
     Log_Ptr<TestClass> log_ptr3(testClass3);
 
-    log_ptr = log_ptr2;
+
+    log_ptr = log_ptr2; 
 
     Log_Ptr<TestClass> log_ptr4 = log_ptr2;
 

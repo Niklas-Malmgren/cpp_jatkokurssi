@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include <chrono>
+#include <mutex>
 
 class ReferenceCounting
 {
@@ -13,5 +14,6 @@ public:
 
 private:
 	int reference_count;
+	std::mutex mutex;
 };
 
