@@ -2,13 +2,6 @@
 #include <vector>
 #include <algorithm>
 
-#include <thread>
-#include <vector>
-#include <mutex>
-#include <iostream>
-#include <chrono>
-#include <future>
-
 class functionObject
 {
 public:
@@ -32,7 +25,7 @@ int main()
     //std::for_each(hitpoints.begin(), hitpoints.end(), hit);
 
 
-    //functionObject function_object;
+    functionObject function_object;
     //std::for_each(hitpoints.begin(), hitpoints.end(), function_object);
 
 
