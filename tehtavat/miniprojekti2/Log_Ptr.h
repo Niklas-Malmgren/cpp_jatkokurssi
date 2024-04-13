@@ -9,8 +9,6 @@ class Log_Ptr
 public:
 	Log_Ptr(T* i);
 	~Log_Ptr();
-	//Log_Ptr(const Log_Ptr&);
-	//Log_Ptr& operator=(const Log_Ptr&);
 	Log_Ptr(const Log_Ptr<T>& log_ptr);
 	Log_Ptr<T>& operator = (const Log_Ptr<T>& log_ptr);
 	T* operator-> ();

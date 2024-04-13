@@ -1,0 +1,1 @@
+Poikkeuksia ei kannata käyttää, koska ne ovat hitaita ja niiden koodaaminen on vaikeaa ja epäselvää.
