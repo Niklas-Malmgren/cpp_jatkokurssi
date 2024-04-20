@@ -27,6 +27,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "teht14-15", "teht14\teht14.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "teht16", "teht16\teht16.vcxproj", "{B5C09EA8-FCA5-433C-A732-454378A750E8}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "miniprojekti3", "miniprojekti3\miniprojekti3.vcxproj", "{918C935C-3321-4EEC-916F-DF8F1F009BD4}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -131,6 +133,14 @@ Global
 		{B5C09EA8-FCA5-433C-A732-454378A750E8}.Release|x64.Build.0 = Release|x64
 		{B5C09EA8-FCA5-433C-A732-454378A750E8}.Release|x86.ActiveCfg = Release|Win32
 		{B5C09EA8-FCA5-433C-A732-454378A750E8}.Release|x86.Build.0 = Release|Win32
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Debug|x64.ActiveCfg = Debug|x64
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Debug|x64.Build.0 = Debug|x64
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Debug|x86.ActiveCfg = Debug|Win32
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Debug|x86.Build.0 = Debug|Win32
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Release|x64.ActiveCfg = Release|x64
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Release|x64.Build.0 = Release|x64
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Release|x86.ActiveCfg = Release|Win32
+		{918C935C-3321-4EEC-916F-DF8F1F009BD4}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
