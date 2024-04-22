@@ -1,82 +1,198 @@
 #include <iostream>
+#include <cmath>
 #include <stdio.h>
 #include "box2d/box2d.h"
+#include "SDL2/SDL.h"
 
-int main(int argc, char** argv)
-{
-	B2_NOT_USED(argc);
-	B2_NOT_USED(argv);
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
-	// Define the gravity vector.
-	b2Vec2 gravity(0.0f, -10.0f);
+int SDL_RenderFillCircle(SDL_Renderer* renderer, int x, int y, int radius);
 
-	// Construct a world object, which will hold and simulate the rigid bodies.
+int main(int argc, char** argv) {
+	SDL_Window* window = NULL;
+	SDL_Surface* screenSurface = NULL;
+	if (SDL_Init(SDL_INIT_VIDEO) < 0) {
+		fprintf(stderr, "could not initialize sdl2: %s\n", SDL_GetError());
+		return 1;
+	}
+	window = SDL_CreateWindow(
+		"BouncyBall",
+		SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+		SCREEN_WIDTH, SCREEN_HEIGHT,
+		SDL_WINDOW_SHOWN
+	);
+	if (window == NULL) {
+		fprintf(stderr, "could not create window: %s\n", SDL_GetError());
+		return 1;
+	}
+
+	SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+
+	float ground_width = 300.0f;
+	float ground_height = 10.0f;
+
+	float ground_posx = SCREEN_WIDTH / 2;
+	float ground_posy = SCREEN_HEIGHT - 50;
+
+	float box_width = 30.0f;
+	float box_height = 30.0f;
+
+	b2Vec2 gravity(0.0f, 10.0f);
 	b2World world(gravity);
 
-	// Define the ground body.
 	b2BodyDef groundBodyDef;
-	groundBodyDef.position.Set(0.0f, -10.0f);
-
-	// Call the body factory which allocates memory for the ground body
-	// from a pool and creates the ground box shape (also from a pool).
-	// The body is also added to the world.
+	groundBodyDef.type = b2_staticBody;
+	groundBodyDef.position.Set(ground_posx, ground_posy);
 	b2Body* groundBody = world.CreateBody(&groundBodyDef);
-
-	// Define the ground box shape.
 	b2PolygonShape groundBox;
-
-	// The extents are the half-widths of the box.
-	groundBox.SetAsBox(50.0f, 10.0f);
-
-	// Add the ground fixture to the ground body.
+	groundBox.SetAsBox(ground_width / 2, ground_height / 2);
 	groundBody->CreateFixture(&groundBox, 0.0f);
 
-	// Define the dynamic body. We set its position and call the body factory.
+
 	b2BodyDef bodyDef;
 	bodyDef.type = b2_dynamicBody;
-	bodyDef.position.Set(0.0f, 4.0f);
+	bodyDef.position.Set(SCREEN_WIDTH / 2, -1000);
 	b2Body* body = world.CreateBody(&bodyDef);
 
-	// Define another box shape for our dynamic body.
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(1.0f, 1.0f);
+	b2BodyDef circleDef;
+	circleDef.type = b2_dynamicBody;
+	circleDef.position.Set(SCREEN_WIDTH / 2, 0);
+	b2Body* circleBody = world.CreateBody(&circleDef);
 
-	// Define the dynamic body fixture.
+	b2BodyDef circleDef2;
+	circleDef2.type = b2_dynamicBody;
+	circleDef2.position.Set(SCREEN_WIDTH / 2 - 150, 0);
+	b2Body* circleBody2 = world.CreateBody(&circleDef2);
+
+	b2PolygonShape dynamicBox;
+	dynamicBox.SetAsBox(box_width, box_height / 2);
+
+	b2CircleShape dynamicCircle;
+	dynamicCircle.m_radius = 20.0f;
+	b2CircleShape dynamicCircle2;
+	dynamicCircle2.m_radius = 20.0f;
+
 	b2FixtureDef fixtureDef;
 	fixtureDef.shape = &dynamicBox;
 
-	// Set the box density to be non-zero, so it will be dynamic.
+	b2FixtureDef circleFixture;
+	circleFixture.shape = &dynamicCircle;
+	circleFixture.restitution = 0.8f;
+	b2FixtureDef circleFixture2;
+	circleFixture2.shape = &dynamicCircle2;
+	circleFixture2.restitution = 0.6f;
+
 	fixtureDef.density = 1.0f;
+	circleFixture.density = 1.0f;
+	circleFixture2.density = 1.0f;
 
-	// Override the default friction.
 	fixtureDef.friction = 0.3f;
+	circleFixture.friction = 0.1f;
+	circleFixture2.friction = 0.1f;
 
-	// Add the shape to the body.
 	body->CreateFixture(&fixtureDef);
+	circleBody->CreateFixture(&circleFixture);
+	circleBody2->CreateFixture(&circleFixture2);
+	
+	circleBody2->ApplyLinearImpulseToCenter(b2Vec2(50000, 50000), false);
 
-	// Prepare for simulation. Typically we use a time step of 1/60 of a
-	// second (60Hz) and 10 iterations. This provides a high quality simulation
-	// in most game scenarios.
+	screenSurface = SDL_GetWindowSurface(window);
+	SDL_SetRenderDrawColor(renderer, 0, 100, 150, 0);
+	SDL_FillRect(screenSurface, NULL, SDL_MapRGB(screenSurface->format, 0, 100, 150));
+	SDL_UpdateWindowSurface(window);
+	SDL_RenderClear(renderer);
+
 	float timeStep = 1.0f / 60.0f;
 	int32 velocityIterations = 6;
-	int32 positionIterations = 2;
+	int32 positionIterations = 6;
 
-	// This is our little game loop.
-	for (int32 i = 0; i < 60; ++i)
+	SDL_Event event;
+	bool exit_game = false;
+
+	while (!exit_game)
 	{
-		// Instruct the world to perform a single step of simulation.
-		// It is generally best to keep the time step and iterations fixed.
+		while (SDL_PollEvent(&event))
+		{
+			if (event.key.keysym.sym == SDLK_ESCAPE)
+				exit_game = true;
+		}
+
 		world.Step(timeStep, velocityIterations, positionIterations);
-
-		// Now print the position and angle of the body.
 		b2Vec2 position = body->GetPosition();
-		float angle = body->GetAngle();
+		float angle = body->GetAngle();	
 
-		printf("%4.2f %4.2f %4.2f\n", position.x, position.y, angle);
+		SDL_Rect ground;
+		ground.w = ground_width;
+		ground.h = ground_height;
+		ground.x = groundBody->GetPosition().x - ground_width / 2;
+		ground.y = groundBody->GetPosition().y - ground_height / 2;
+		SDL_SetRenderDrawColor(renderer, 155, 0, 100, 0);
+		SDL_RenderFillRect(renderer, &ground);
+
+		SDL_Rect box;
+		box.w = box_width;
+		box.h = box_height;
+		box.x = body->GetPosition().x - box_width / 2;
+		box.y = body->GetPosition().y - box_height / 2;
+		SDL_SetRenderDrawColor(renderer, 155, 155, 0, 0);
+		SDL_RenderFillRect(renderer, &box);
+		
+		SDL_RenderFillCircle(renderer, circleBody->GetPosition().x, circleBody->GetPosition().y, dynamicCircle.m_radius);
+		SDL_RenderFillCircle(renderer, circleBody2->GetPosition().x, circleBody2->GetPosition().y, dynamicCircle2.m_radius);
+
+		SDL_SetRenderDrawColor(renderer, 0, 100, 150, 0);
+		SDL_RenderPresent(renderer);
+		SDL_RenderClear(renderer);
 	}
 
-	// When the world destructor is called, all bodies and joints are freed. This can
-	// create orphaned pointers, so be careful about your world management.
+
+	SDL_DestroyWindow(window);
+	SDL_Quit();
 
 	return 0;
+}
+
+int SDL_RenderFillCircle(SDL_Renderer* renderer, int x, int y, int radius)
+{
+	int offsetx, offsety, d;
+	int status;
+
+	offsetx = 0;
+	offsety = radius;
+	d = radius - 1;
+	status = 0;
+
+	while (offsety >= offsetx) {
+
+		status += SDL_RenderDrawLine(renderer, x - offsety, y + offsetx,
+			x + offsety, y + offsetx);
+		status += SDL_RenderDrawLine(renderer, x - offsetx, y + offsety,
+			x + offsetx, y + offsety);
+		status += SDL_RenderDrawLine(renderer, x - offsetx, y - offsety,
+			x + offsetx, y - offsety);
+		status += SDL_RenderDrawLine(renderer, x - offsety, y - offsetx,
+			x + offsety, y - offsetx);
+
+		if (status < 0) {
+			status = -1;
+			break;
+		}
+
+		if (d >= 2 * offsetx) {
+			d -= 2 * offsetx + 1;
+			offsetx += 1;
+		}
+		else if (d < 2 * (radius - offsety)) {
+			d += 2 * offsety - 1;
+			offsety -= 1;
+		}
+		else {
+			d += 2 * (offsety - offsetx - 1);
+			offsety -= 1;
+			offsetx += 1;
+		}
+	}
+
+	return status;
 }
